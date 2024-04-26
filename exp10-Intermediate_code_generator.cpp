@@ -1,74 +1,46 @@
-#include <iostream>
-#include <string>
-#include <sstream>
+#include <stdio.h>
 
-using namespace std;
+// Global variable for label index
+int labelIndex = 0;
 
-// Function to generate new label
-string newLabel() {
-    static int labelCounter = 0;
-    stringstream ss;
-    ss << "L" << labelCounter++;
-    return ss.str();
+// Function to generate unique labels
+char* generateLabel() {
+    static char label[10];
+    sprintf(label, "L%d", labelIndex++);
+    return label;
 }
 
-// Function to generate intermediate code for if construct
-string generateIf(string E, string S1_CODE, string S_NEXT) {
-    string TRUE = newLabel();
-    string FALSE = S_NEXT;
-    string code = E + " TRUE: " + TRUE + "\n" +
-                 " FALSE: " + FALSE + "\n" +
-                 S1_CODE + "\n" +
-                 TRUE + ": \n";
-    return code;
+// Function to generate intermediate code for If statement
+void generateIfCode(char* condition, char* trueLabel, char* falseLabel) {
+    // Output intermediate code for If statement
+    printf("IF %s GOTO %s ELSE GOTO %s\n", condition, trueLabel, falseLabel);
 }
 
-// Function to generate intermediate code for if-else construct
-string generateIfElse(string E, string S1_CODE, string S2_CODE, string S_NEXT) {
-    string TRUE = newLabel();
-    string FALSE = newLabel();
-    string code = E + " TRUE: " + TRUE + "\n" +
-                 " FALSE: " + FALSE + "\n" +
-                 S1_CODE + "\n" +
-                 "goto " + S_NEXT + "\n" +
-                 FALSE + ": \n" +
-                 S2_CODE + "\n";
-    return code;
-}
-
-// Function to generate intermediate code for while construct
-string generateWhile(string E, string S1_CODE) {
-    string BEGIN = newLabel();
-    string TRUE = newLabel();
-    string NEXT = newLabel();
-    string code = BEGIN + ": \n" +
-                 E + " TRUE: " + TRUE + "\n" +
-                 " FALSE: " + NEXT + "\n" +
-                 S1_CODE + "\n" +
-                 "goto " + BEGIN + "\n" +
-                 NEXT + ": \n";
-    return code;
+// Function to generate intermediate code for While statement
+void generateWhileCode(char* condition, char* startLabel, char* endLabel) {
+    // Output intermediate code for While statement
+    printf("%s:\n", startLabel);
+    printf("IF %s GOTO %s ELSE GOTO %s\n", condition, endLabel, endLabel);
 }
 
 int main() {
-    // Example usage:
-    string E = "if (condition)";
-    string S1_CODE = "cout << \"Condition is true\";";
-    string S2_CODE = "cout << \"Condition is false\";";
-    string S_NEXT = "end;";
-    
-    // Generate intermediate code for if-else construct
-    string ifElseCode = generateIfElse(E, S1_CODE, S2_CODE, S_NEXT);
-    cout << "Intermediate code for if-else:\n" << ifElseCode << endl;
-    
-    // Generate intermediate code for if construct
-    string ifCode = generateIf(E, S1_CODE, S_NEXT);
-    cout << "Intermediate code for if:\n" << ifCode << endl;
-    
-    // Generate intermediate code for while construct
-    string whileCode = generateWhile(E, S1_CODE);
-    cout << "Intermediate code for while:\n" << whileCode << endl;
-    
+    // Example If statement
+    char* ifCondition = "x < y";
+    char* ifTrueLabel = generateLabel(); // Generate label for true branch
+    char* ifFalseLabel = generateLabel(); // Generate label for false branch
+    generateIfCode(ifCondition, ifTrueLabel, ifFalseLabel); // Generate intermediate code for If statement
+    printf("%s: printf(\"x is less than y\\n\");\n", ifTrueLabel); // Output code for true branch
+    printf("%s: printf(\"x is not less than y\\n\");\n", ifFalseLabel); // Output code for false branch
+
+    // Example While loop
+    char* whileCondition = "i < 5";
+    char* whileStartLabel = generateLabel(); // Generate label for loop start
+    char* whileEndLabel = generateLabel(); // Generate label for loop end
+    generateWhileCode(whileCondition, whileStartLabel, whileEndLabel); // Generate intermediate code for While loop
+    printf("%s: printf(\"i: %%d\\n\", i);\n", whileStartLabel); // Output code for loop body
+    printf("i++;\n"); // Increment loop counter
+    printf("GOTO %s;\n", whileStartLabel); // Jump back to loop start
+    printf("%s:\n", whileEndLabel); // Output label for loop end
+
     return 0;
 }
-
