@@ -1,3 +1,10 @@
+/* To run in cmd:
+bison -d exp5_y.y
+flex exp5-scanner.l
+gcc lex.yy.c exp5_y.tab.c -W
+a
+*/
+
 %option noyywrap
 
 %{
