@@ -1,25 +1,22 @@
+%option noyywrap
 %{
 #include <stdio.h>
 %}
 
-
 %%
-if|for|while|read|then|else|display|step { printf("KEYWORD %s\n",yytext); }
-[<|<=|==|#|>=|>]   { printf("%s: RELATIONAL operators\n",yytext); }
+integer|read|display|if|else|then|while|for|to|step { printf("Keyword: %s\n", yytext); }
+"<="|">="|"<"|">"|"=="|"#" { printf("Relational Operator: %s\n", yytext); }
 "+"|"-"|"*"|"/" { printf("Arithmetic Operator: %s\n", yytext); }
-"++"|"--"|"=" { printf("Increment Operator: %s\n", yytext); }
-
-"integer"          { printf("INTEGER %s\n",yytext); }
-[a-zA-Z][a-zA-Z0-9]*  { printf("IDENTIFIER %s\n",yytext); }
-[ \t\n]+         ; /* Ignore whitespace and newline */
-[{}();,]         { printf("%s: SYMBOL\n",yytext); }
-
-[.]                { printf("ERROR: Unrecognized token\n"); }
-[0-9]            { printf(“Digit: %s\n”,yytext); }
-
+"++" { printf("Increment Operator: %s\n", yytext); }
+"--" { printf("Decrement Operator: %s\n", yytext); }
+"=" { printf("Assignment Operator: %s\n", yytext); }
+"("|")"|"{"|"}"|","|";" { printf("Special Symbol: %s\n", yytext); }
+[a-zA-Z][a-zA-Z0-9_]* { printf("Identifier: %s\n", yytext); }
+[0-9]+ { printf("Number: %s\n", yytext); }
+[ \t\n]+ { /* Skip whitespace */ }
+. { /* Ignore any other symbols */ }
 %%
 
-int yywrap() {}
 int main() {
     // Open the file provided as argument
     FILE *file = fopen("file4.star.txt", "r");
