@@ -1,3 +1,10 @@
+/* To run it:
+in CMD:
+flex exp3-regexscan.l
+gcc lex.yy.c
+a
+*/
+
 %option noyywrap
 %{
 #include <stdio.h>
