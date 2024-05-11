@@ -1,90 +1,64 @@
-#include <iostream>
-#include <string>
-#include <stack>
-#include <cctype>
-
-using namespace std;
-
-// Node for syntax tree
-struct Node {
-    char data;
-    Node* left;
-    Node* right;
-
-    Node(char data) : data(data), left(NULL), right(NULL) {}
-};
-
-// Function to check if a character is an operator
-bool isOperator(char c) {
-    return c == '+' || c == '-' || c == '*' || c == '/';
+ #include <stdio.h>
+ #include <stdlib.h>
+ // Define the node structure for the syntax tree
+ typedef struct Node {
+ 	char data;
+ 	struct Node *left;
+ 	struct Node *right;
+ } Node;
+ // Function to create a new node
+ Node* createNode(char data) {
+ 	Node* newNode = (Node*)malloc(sizeof(Node));
+ 	newNode->data = data;
+ 	newNode->left = NULL;
+ 	newNode->right = NULL;
+ 	return newNode;
+ }
+// Function to traverse the syntax tree and perform arithmetic operations
+int evaluateExpression(Node* root) {
+ 	if (root == NULL) return 0;
+ 	// If the node is a number, return its value
+ 	if (root->data >= '0' && root->data <= '9') {
+ 		return root->data- '0';
+ 	}
+	// Recursively evaluate left and right subtrees
+ 	int leftValue = evaluateExpression(root->left);
+ 	int rightValue = evaluateExpression(root->right);
+ 	// Perform arithmetic operations based on the operator
+ 	switch (root->data) {
+ 		case '+':
+			return leftValue + rightValue;
+ 		case '-':
+ 			return leftValue- rightValue;
+ 		case '*':
+ 			return leftValue * rightValue;
+ 		case '/':
+ 			if (rightValue != 0) {
+ 				return leftValue / rightValue;
+ 			} else {
+ 				printf("Error: Division by zero\n");
+ 				exit(EXIT_FAILURE);
+ 			}
+ 		default:
+ 			printf("Error: Invalid operator\n");
+ 			exit(EXIT_FAILURE);
+ 	}
 }
-
-// Function to construct syntax tree from postfix expression
-Node* constructSyntaxTree(const string& postfix) {
-    stack<Node*> stack;
-
-    for (size_t i = 0; i < postfix.size(); ++i) {
-        char c = postfix[i];
-        if (isalnum(c)) {
-            stack.push(new Node(c));
-        } else if (isOperator(c)) {
-            Node* rightOperand = stack.top();
-            stack.pop();
-            Node* leftOperand = stack.top();
-            stack.pop();
-
-            Node* newNode = new Node(c);
-            newNode->left = leftOperand;
-            newNode->right = rightOperand;
-            stack.push(newNode);
-        }
-    }
-
-    return stack.top();
-}
-
-// Function to perform arithmetic operation based on operator
-int performOperation(char operation, int operand1, int operand2) {
-    switch (operation) {
-        case '+':
-            return operand1 + operand2;
-        case '-':
-            return operand1 - operand2;
-        case '*':
-            return operand1 * operand2;
-        case '/':
-            return operand1 / operand2;
-        default:
-            cerr << "Invalid operator!" << endl;
-            return 0;
-    }
-}
-
-// Function to evaluate syntax tree recursively
-int evaluateSyntaxTree(Node* root) {
-    if (!root)
-        return 0;
-
-    if (isalnum(root->data)) {
-        return root->data - '0'; // Convert char to int
-    }
-
-    int leftValue = evaluateSyntaxTree(root->left);
-    int rightValue = evaluateSyntaxTree(root->right);
-
-    return performOperation(root->data, leftValue, rightValue);
-}
-
 int main() {
-    string postfixExpression;
-    cout << "Enter a postfix expression: ";
-    cin >> postfixExpression;
-
-    Node* syntaxTreeRoot = constructSyntaxTree(postfixExpression);
-
-    int result = evaluateSyntaxTree(syntaxTreeRoot);
-    cout << "Result: " << result << endl;
-
-    return 0;
+	// Construct the syntax tree for the expression "((3+2)*5)"
+ 	Node* root = createNode('*');
+ 	root->left = createNode('+');
+ 	root->right = createNode('5');
+ 	root->left->left = createNode('3');
+ 	root->left->right = createNode('2');
+ 	// Evaluate the expression and print the result
+ 	int result = evaluateExpression(root);
+ 	printf("Result: %d\n", result);
+ 	// Free memory allocated for the syntax tree
+ 	free(root->left->left);
+ 	free(root->left->right);
+ 	free(root->left);
+ 	free(root->right);
+ 	free(root);
+ 	return 0;
 }
-
