@@ -1,68 +1,114 @@
-#include<stdio.h>
-#include<string.h>
-char prol[7][10]={"S","A","A","B","B","C","C"};
-char pror[7][10]={"A","Bb","Cd","aB","@","Cc","@"};
-char prod[7][10]={"S->A","A->Bb","A->Cd","B->aB","B->@","C->Cc","C->@"}; 
-char first[7][10]={"abcd","ab","cd","a@","@","c@","@"}; 
-char follow[7][10]={"$","$","$","a$","b$","c$","d$"};
-char table[5][6][10];
-int numr(char c)
-{
-switch(c){
-case 'S': return 0;
-case 'A': return 1;
-case 'B': return 2;
-case 'C': return 3;
-case 'a': return 0;
-case 'b': return 1;
-case 'c': return 2;
-case 'd': return 3;
-case '$': return 4;
-}
-return(2);
-}
-void main()
-{
-int i,j,k;
-for(i=0;i<5;i++)
-    for(j=0;j<6;j++)
-        strcpy(table[i][j]," ");
-    printf("\nThe following is the predictive parsing table for the following grammar:\n"); 
-    for(i=0;i<7;i++)
-        printf("%s\n",prod[i]);
-    printf("\nPredictive parsing table is\n");
-    fflush(stdin);
-    for(i=0;i<7;i++){
-        k=strlen(first[i]);
-        for(j=0;j<10;j++)
-            if(first[i][j]!='@')
-                strcpy(table[numr(prol[i][0])+1][numr(first[i][j])+1],prod[i]);
-    }
-    for(i=0;i<7;i++){
-        if(strlen(pror[i])==1){
-            if(pror[i][0]=='@'){
-                k=strlen(follow[i]);
-                for(j=0;j<k;j++)
-                    strcpy(table[numr(prol[i][0])+1][numr(follow[i][j])+1],prod[i]); 
-            }
-        }
-    }
-    strcpy(table[0][0]," ");
-    strcpy(table[0][1],"a");
-    strcpy(table[0][2],"b");
-    strcpy(table[0][3],"c");
-    strcpy(table[0][4],"d");
-    strcpy(table[0][5],"$");
-    strcpy(table[1][0],"S");
-    strcpy(table[2][0],"A");
-    strcpy(table[3][0],"B");
-    strcpy(table[4][0],"C");
-    printf("\n--------------------------------------------------------\n");
-    for(i=0;i<5;i++)
-        for(j=0;j<6;j++){
-            printf("%-10s",table[i][j]);
-            if(j==5)
-                printf("\n--------------------------------------------------------\n");
-        }
-    }
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
+
+int i=0,top=0;
+char stack[20],ip[20];
+
+
+void push(char c){
+	if(top>=20){
+		printf("Stack overflow");
+	}
+	else{
+		stack[top++] = c;
+	}
+}
+
+
+void pop(void){
+	if(top<0){
+		printf("Under flow");
+	}
+	else{
+		top--;
+	}
+}
+
+
+void error(void){
+	printf("\n\n Syntax Error!! String is invalid\n");
+	exit(0);
+}
+
+
+int main(){
+	int n;
+	printf("The given Grammer is \n\n");
+	printf("E -> TE'\n");
+	printf("E' -> +TE' |epsilon\n");
+	printf("T -> FT'\n");
+	printf("T' -> *FT' | epsilon\n");
+	printf("F -> (E) | i \n\n");
+	printf("Enter the string to be parsed:\n");
+	scanf("%s",ip);
+	n=strlen(ip);
+	ip[n] = '$';
+	ip[n+1] = '\0';
+	push('$');
+	push('E');
+	while(ip[i]!='\0'){
+		if(ip[i]=='$' && stack[top-1]=='$'){
+			printf("\n\n Sucessfully parsed the string \n");
+			return 1;
+		}
+		else if (ip[i] == stack[top-1]){
+			printf("\nmatch of %c",ip[i]);
+			i++;
+			pop();
+		}
+		else{
+			if(stack[top-1]=='E' && (ip[i]=='i' || ip[i]=='(')){
+				printf("\n E -> TE'");
+				pop();
+				push('A');
+				push('T');
+			}
+			else if (stack[top-1]== 'A' && ip[i]=='+'){
+				printf("\n E'-> +TE'");
+				pop();
+				push('A');
+				push('T');
+				push('+');
+			}
+			else if (stack[top-1]== 'A' && (ip[i]== ')' || ip[i] == '$')){
+				printf("\n E -> epsilon");
+				pop();
+			}
+			else if (stack[top-1]== 'T' && (ip[i] == 'i' || ip[i] == '(')){
+				printf("\n T -> FT'");
+				pop();
+				push('B');
+				push('F');
+			}
+			else if (stack[top-1]== 'B' && ip[i]=='*'){
+				printf("\n T'-> *TF'");
+				pop();
+				push('B');
+				push('F');
+				push('*');
+			}
+			else if (stack[top-1]=='B' && (ip[i]== '+' || ip[i] == ')' || ip[i] == '$')){
+				printf("\n T -> epsilon");
+				pop();
+			}
+			else if (stack[top-1]== 'F' && (ip[i] == 'i')){
+				printf("\n F -> i'");
+				pop();
+				push('i');
+			}
+			else if (stack[top-1]== 'F' && ip[i]=='('){
+				printf("\n F-> (E)");
+				pop();
+				push(')');
+				push('E');
+				push('(');
+			}
+			else{
+				error();
+			}
+		}
+	}
+    return 0;
+}
