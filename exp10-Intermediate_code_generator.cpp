@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 // Global variable for label index
 int labelIndex = 1;
 
